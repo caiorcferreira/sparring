@@ -1,0 +1,5 @@
+
+targets:
+  - method: GET
+    path: "/hero"
+    body: '{"id": "1234567890"}'

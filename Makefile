@@ -1,0 +1,4 @@
+
+dev:
+	go run *.go
+	
