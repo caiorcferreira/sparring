@@ -16,6 +16,7 @@ func main() {
 	}
 }
 
+// Start runs an Sparring instance
 func Start() error {
 	cfg, err := LoadConfig()
 	if err != nil {

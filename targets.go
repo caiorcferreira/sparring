@@ -11,6 +11,8 @@ import (
 
 var cache sync.Map
 
+// SetupTargets adds a handler in the Echo instance for
+// each target configured.
 func SetupTargets(cfg Config, e *echo.Echo) error {
 	for _, target := range cfg.Targets {
 		e.Add(
