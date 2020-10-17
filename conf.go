@@ -6,12 +6,14 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"time"
 )
 
 type Target struct {
-	Method string `yaml:"method"`
-	Path   string `yaml:"path"`
-	Body   string `yaml:"body"`
+	Method       string        `yaml:"method"`
+	Path         string        `yaml:"path"`
+	Body         string        `yaml:"body"`
+	ResponseTime time.Duration `yaml:"responseTime"`
 }
 
 type Config struct {

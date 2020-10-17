@@ -1,4 +1,3 @@
 
 dev:
 	go run *.go
-	
