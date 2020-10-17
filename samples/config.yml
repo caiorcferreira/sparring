@@ -1,0 +1,11 @@
+
+targets:
+  - method: GET
+    path: "/hero"
+    body:
+      file: samples/get-hero.json
+      #value: '{"id": "1234567890"}'
+    responseTime: 1s
+  - method: GET
+    path: "/sidekick"
+    responseTime: 1s

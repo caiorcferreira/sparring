@@ -9,10 +9,15 @@ import (
 	"time"
 )
 
+type Body struct {
+	Value string `yaml:"value"`
+	File  string `yaml:"file"`
+}
+
 type Target struct {
 	Method       string        `yaml:"method"`
 	Path         string        `yaml:"path"`
-	Body         string        `yaml:"body"`
+	Body         Body          `yaml:"body"`
 	ResponseTime time.Duration `yaml:"responseTime"`
 }
 

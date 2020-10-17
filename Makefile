@@ -1,3 +1,3 @@
 
 dev:
-	go run *.go
+	CONFIG=samples/config.yml go run *.go
