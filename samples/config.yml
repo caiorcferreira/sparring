@@ -1,3 +1,5 @@
+port: 9001
+logLevel: warn
 
 targets:
   - method: GET

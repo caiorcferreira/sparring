@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
@@ -23,20 +22,20 @@ type Target struct {
 }
 
 type Config struct {
-	Port           string
 	ConfigFilePath string
 
-	Targets []Target `yaml:"targets"`
+	Port     string   `yaml:"port"`
+	LogLevel string   `yaml:"logLevel"`
+	Targets  []Target `yaml:"targets"`
 }
 
 func LoadConfig() (Config, error) {
-	port := os.Getenv("PORT")
+	port := os.Getenv("SPARRING_PORT")
 	if port == "" {
 		port = "9000"
 	}
-	addr := fmt.Sprintf(":%s", port)
 
-	configLocation := os.Getenv("CONFIG")
+	configLocation := os.Getenv("SPARRING_CONFIG")
 	if configLocation == "" {
 		pwd, err := os.Getwd()
 		if err != nil {
@@ -46,7 +45,16 @@ func LoadConfig() (Config, error) {
 		configLocation = path.Join(pwd, "config.yml")
 	}
 
-	cfg := Config{Port: addr, ConfigFilePath: configLocation}
+	logLevel := os.Getenv("SPARRING_LOG_LEVEL")
+	if logLevel == "" {
+		logLevel = "INFO"
+	}
+
+	cfg := Config{
+		Port:           port,
+		ConfigFilePath: configLocation,
+		LogLevel:       logLevel,
+	}
 
 	fileBytes, err := ioutil.ReadFile(configLocation)
 	if err != nil {

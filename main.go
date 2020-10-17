@@ -3,7 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
-	"log"
+	"github.com/labstack/echo/v4/middleware"
+	"github.com/labstack/gommon/log"
 	"net/http"
 	"os"
 )
@@ -22,6 +23,8 @@ func Start() error {
 	}
 
 	e := echo.New()
+	setLogLevel(cfg, e)
+
 	e.GET("/health", func(ctx echo.Context) error {
 		err := ctx.String(http.StatusOK, fmt.Sprintf("Healthy! :)\nConfig:\n%+v", cfg))
 		if err != nil {
@@ -37,6 +40,25 @@ func Start() error {
 		return err
 	}
 
-	err = e.Start(cfg.Port)
+	e.Use(middleware.Recover())
+	if e.Logger.Level() == log.INFO {
+		e.Use(middleware.Logger())
+	}
+
+	addr := fmt.Sprintf(":%s", cfg.Port)
+	err = e.Start(addr)
 	return err
+}
+
+func setLogLevel(cfg Config, e *echo.Echo) {
+	switch cfg.LogLevel {
+	case "DEBUG", "debug":
+		e.Logger.SetLevel(log.DEBUG)
+	case "INFO", "info":
+		e.Logger.SetLevel(log.INFO)
+	case "WARN", "warn":
+		e.Logger.SetLevel(log.WARN)
+	case "ERROR", "error":
+		e.Logger.SetLevel(log.ERROR)
+	}
 }

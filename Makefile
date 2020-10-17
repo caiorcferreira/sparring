@@ -1,3 +1,3 @@
 
 dev:
-	CONFIG=samples/config.yml go run *.go
+	SPARRING_CONFIG=samples/config.yml go run *.go
