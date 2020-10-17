@@ -1,5 +1,6 @@
 port: 9001
-logLevel: warn
+logLevel: debug
+gracefulShutdownTimeout: 1ms
 
 targets:
   - method: GET

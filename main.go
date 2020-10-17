@@ -1,12 +1,14 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"
 	"net/http"
 	"os"
+	"os/signal"
 )
 
 func main() {
@@ -42,12 +44,27 @@ func Start() error {
 	}
 
 	e.Use(middleware.Recover())
-	if e.Logger.Level() == log.INFO {
+	if e.Logger.Level() <= log.INFO {
 		e.Use(middleware.Logger())
 	}
 
 	addr := fmt.Sprintf(":%s", cfg.Port)
-	err = e.Start(addr)
+
+	go func() {
+		if err := e.Start(addr); err != nil {
+			e.Logger.Info("shutting down the server", err)
+		}
+	}()
+
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.GracefulShutdownTimeout)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Errorf("graceful shutdown failed: %s", err)
+	}
+
 	return err
 }
 

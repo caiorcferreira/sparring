@@ -27,9 +27,10 @@ type Target struct {
 type Config struct {
 	ConfigFilePath string
 
-	Port     string   `yaml:"port"`
-	LogLevel string   `yaml:"logLevel"`
-	Targets  []Target `yaml:"targets"`
+	Port                    string        `yaml:"port"`
+	LogLevel                string        `yaml:"logLevel"`
+	GracefulShutdownTimeout time.Duration `yaml:"gracefulShutdownTimeout"`
+	Targets                 []Target      `yaml:"targets"`
 }
 
 // LoadConfig consolidated environment variables and the YAML file
