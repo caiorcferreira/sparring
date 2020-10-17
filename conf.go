@@ -19,6 +19,7 @@ type Target struct {
 	Path         string        `yaml:"path"`
 	Body         Body          `yaml:"body"`
 	ResponseTime time.Duration `yaml:"responseTime"`
+	StatusCode   int           `yaml:"statusCode"`
 }
 
 type Config struct {

@@ -2,10 +2,12 @@
 targets:
   - method: GET
     path: "/hero"
+    statusCode: 200
     body:
       file: samples/get-hero.json
       #value: '{"id": "1234567890"}'
     responseTime: 1s
   - method: GET
+    statusCode: 404
     path: "/sidekick"
     responseTime: 1s

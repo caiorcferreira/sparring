@@ -4,32 +4,54 @@ import (
 	"fmt"
 	"github.com/labstack/echo/v4"
 	"io/ioutil"
-	"net/http"
 	"os"
+	"sync"
 	"time"
 )
 
 func SetupTargets(cfg Config, e *echo.Echo) error {
 	for _, target := range cfg.Targets {
-		e.Add(target.Method, target.Path, makeTargetHandler(target))
+		e.Add(
+			target.Method,
+			target.Path,
+			makeTargetHandler(target),
+			makeResponseTimeMiddleware(target),
+		)
 	}
 
 	return nil
 }
 
+func makeResponseTimeMiddleware(target Target) echo.MiddlewareFunc {
+	return func(next echo.HandlerFunc) echo.HandlerFunc {
+		return func(ctx echo.Context) error {
+			var resultErr error
+			var wg sync.WaitGroup
+
+			if target.ResponseTime > 0 {
+				wg.Add(1)
+				time.AfterFunc(target.ResponseTime, func() {
+					resultErr = next(ctx)
+					wg.Done()
+				})
+			}
+
+			wg.Wait()
+
+			return resultErr
+		}
+	}
+}
+
 func makeTargetHandler(target Target) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
-		if target.ResponseTime != 0 {
-			time.Sleep(target.ResponseTime)
-		}
-
 		body, err := mountTargetBody(target)
 		if err != nil {
 			ctx.Logger().Errorf("failed mounting target body for response: %s", err)
 			return err
 		}
 
-		err = ctx.JSONBlob(http.StatusOK, body)
+		err = ctx.JSONBlob(target.StatusCode, body)
 		if err != nil {
 			ctx.Logger().Errorf("failed to write response back: %s", err)
 			return err
