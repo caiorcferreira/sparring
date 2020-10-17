@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+var cache sync.Map
+
 func SetupTargets(cfg Config, e *echo.Echo) error {
 	for _, target := range cfg.Targets {
 		e.Add(
@@ -47,7 +49,7 @@ func makeTargetHandler(target Target) func(ctx echo.Context) error {
 	return func(ctx echo.Context) error {
 		body, err := mountTargetBody(target)
 		if err != nil {
-			ctx.Logger().Errorf("failed mounting target body for response: %s", err)
+			ctx.Logger().Errorf("failed to mount target response body: %s", err)
 			return err
 		}
 
@@ -62,15 +64,31 @@ func makeTargetHandler(target Target) func(ctx echo.Context) error {
 }
 
 func mountTargetBody(target Target) ([]byte, error) {
+	cacheKey := fmt.Sprintf("%s %s", target.Method, target.Path)
+	value, found := cache.Load(cacheKey)
+	if found {
+		b, ok := value.([]byte)
+		if ok {
+			return b, nil
+		}
+	}
+
+	var body []byte
 	if target.Body.File != "" {
-		return fetchFileContent(target.Body.File)
+		b, err := fetchFileContent(target.Body.File)
+		if err != nil {
+			return nil, err
+		}
+		body = b
 	}
 
 	if target.Body.Value != "" {
-		return []byte(target.Body.Value), nil
+		body = []byte(target.Body.Value)
 	}
 
-	return nil, nil
+	cache.Store(cacheKey, body)
+
+	return body, nil
 }
 
 func fetchFileContent(file string) ([]byte, error) {
